@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3>Welcome, {{ current_user.full_name }}!</h3>
+                    <span class="badge bg-primary">User Dashboard</span>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <div class="card h-100">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title">Active Reservations</h5>
+                                    <p class="display-4">{{ current_user.reservations|length }}</p>
+                                    <a href="#" class="btn btn-primary">View Reservations</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="card h-100">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title">Find Parking</h5>
+                                    <p class="card-text">Search and reserve parking spots</p>
+                                    <a href="#" class="btn btn-success">Search Spots</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="card h-100">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title">Profile</h5>
+                                    <p class="card-text">Update your account information</p>
+                                    <a href="#" class="btn btn-info">Edit Profile</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
