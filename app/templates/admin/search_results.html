@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h3>Search Results</h3>
+            <a href="{{ url_for('admin.admin_dashboard') }}" class="btn btn-primary">Back to Dashboard</a>
+        </div>
+        <div class="card-body">
+            <h5>Results for: {{ query }}</h5>
+            {% if results %}
+                {% if search_type == 'user' %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Username</th>
+                                    <th>Full Name</th>
+                                    <th>Email</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in results %}
+                                <tr>
+                                    <td>{{ user.username }}</td>
+                                    <td>{{ user.full_name }}</td>
+                                    <td>{{ user.email }}</td>
+                                    <td>
+                                        <a href="{{ url_for('admin.view_user_details', user_id=user.id) }}" class="btn btn-sm btn-info">View Details</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% elif search_type == 'spot' %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Spot ID</th>
+                                    <th>Location</th>
+                                    <th>Status</th>
+                                    <th>Current User</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for spot in results %}
+                                <tr>
+                                    <td>{{ spot.id }}</td>
+                                    <td>{{ spot.lot.prime_location_name }}</td>
+                                    <td>
+                                        <span class="badge {% if spot.status == 'A' %}bg-success{% else %}bg-danger{% endif %}">
+                                            {% if spot.status == 'A' %}Available{% else %}Occupied{% endif %}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if spot.reservation and spot.status == 'O' %}
+                                            {{ spot.reservation.user.username }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Location Name</th>
+                                    <th>Address</th>
+                                    <th>Available Spots</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for lot in results %}
+                                <tr>
+                                    <td>{{ lot.prime_location_name }}</td>
+                                    <td>{{ lot.address }}</td>
+                                    <td>{{ lot.available_spots }}/{{ lot.max_spots }}</td>
+                                    <td>
+                                        <a href="{{ url_for('admin.lot_details', lot_id=lot.id) }}" class="btn btn-sm btn-info">View Details</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
+            {% else %}
+                <div class="alert alert-info">No results found for your search.</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -2,6 +2,34 @@
 
 {% block content %}
 <div class="container mt-4">
+    <!-- Add search section at the top -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Quick Search</h4>
+                </div>
+                <div class="card-body">
+                    <form action="{{ url_for('admin.search') }}" method="GET" class="row g-3">
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" name="query" placeholder="Search by username, spot ID, or location" required>
+                        </div>
+                        <div class="col-md-4">
+                            <select class="form-select" name="search_type">
+                                <option value="user">Search Users</option>
+                                <option value="spot">Search Spots</option>
+                                <option value="location">Search Locations</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <button type="submit" class="btn btn-primary">Search</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Existing dashboard content -->
     <div class="row">
         <div class="col-md-12">
             <div class="card">

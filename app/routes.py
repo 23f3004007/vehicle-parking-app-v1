@@ -206,3 +206,34 @@ def view_reports():
                           active_reservations=active_reservations,
                           completed_reservations=completed_reservations,
                           total_revenue=total_revenue)
+
+
+@admin.route('/search')
+@admin_required
+def search():
+    query = request.args.get('query', '')
+    search_type = request.args.get('search_type', 'user')
+    
+    if not query:
+        return redirect(url_for('admin.admin_dashboard'))
+    
+    results = []
+    if search_type == 'user':
+        results = User.query.filter(
+            User.username.ilike(f'%{query}%') |
+            User.full_name.ilike(f'%{query}%')
+        ).all()
+    elif search_type == 'spot':
+        results = ParkingSpot.query.filter(
+            ParkingSpot.id.ilike(f'%{query}%')
+        ).all()
+    elif search_type == 'location':
+        results = ParkingLot.query.filter(
+            ParkingLot.prime_location_name.ilike(f'%{query}%') |
+            ParkingLot.address.ilike(f'%{query}%')
+        ).all()
+    
+    return render_template('admin/search_results.html', 
+                           results=results, 
+                           search_type=search_type,
+                           query=query)
