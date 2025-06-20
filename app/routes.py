@@ -237,3 +237,72 @@ def search():
                            results=results, 
                            search_type=search_type,
                            query=query)
+
+
+# Add these imports at the top
+from flask import jsonify
+
+# API endpoints for parking lots
+@admin.route('/api/lots', methods=['GET'])
+@admin_required
+def get_lots():
+    lots = ParkingLot.query.all()
+    return jsonify([
+        {
+            'id': lot.id,
+            'name': lot.prime_location_name,
+            'address': lot.address,
+            'price_per_hour': lot.price_per_hour,
+            'total_spots': lot.max_spots,
+            'available_spots': lot.available_spots
+        } for lot in lots
+    ])
+
+# API endpoint for spots in a lot
+@admin.route('/api/lots/<int:lot_id>/spots', methods=['GET'])
+@admin_required
+def get_lot_spots(lot_id):
+    lot = ParkingLot.query.get_or_404(lot_id)
+    return jsonify([
+        {
+            'id': spot.id,
+            'status': spot.status,
+            'is_available': spot.is_available()
+        } for spot in lot.spots
+    ])
+
+# API endpoint for reservations
+@admin.route('/api/reservations', methods=['GET'])
+@admin_required
+def get_reservations():
+    reservations = Reservation.query.all()
+    return jsonify([
+        {
+            'id': res.id,
+            'user': res.user.username,
+            'spot_id': res.spot_id,
+            'parking_time': res.parking_time.isoformat(),
+            'leaving_time': res.leaving_time.isoformat() if res.leaving_time else None,
+            'cost': res.calculate_total_cost()
+        } for res in reservations
+    ])
+
+# User-specific API endpoints
+@user.route('/api/my-history', methods=['GET'])
+@login_required
+def get_user_history():
+    reservations = Reservation.query.filter_by(
+        user_id=current_user.id
+    ).filter(
+        Reservation.leaving_time.isnot(None)
+    ).order_by(Reservation.parking_time.desc()).all()
+    
+    return jsonify([
+        {
+            'location': res.spot.lot.prime_location_name,
+            'parking_time': res.parking_time.isoformat(),
+            'leaving_time': res.leaving_time.isoformat(),
+            'duration': round((res.leaving_time - res.parking_time).total_seconds() / 3600, 1),
+            'cost': res.calculate_total_cost()
+        } for res in reservations
+    ])
