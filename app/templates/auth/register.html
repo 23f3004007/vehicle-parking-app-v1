@@ -16,26 +16,35 @@
                             {% endfor %}
                         {% endif %}
                     {% endwith %}
-                    <form method="POST">
+                    <form method="POST" id="registerForm" onsubmit="return validateRegisterForm()">
                         <div class="form-group mb-3">
                             <label for="username">Username</label>
-                            <input type="text" class="form-control" id="username" name="username" required>
+                            <input type="text" class="form-control" id="username" name="username" 
+                                   required minlength="3" maxlength="50" pattern="[A-Za-z0-9_]+">
+                            <div class="invalid-feedback">Username must be 3-50 characters long and contain only letters, numbers, and underscores.</div>
                         </div>
                         <div class="form-group mb-3">
                             <label for="email">Email</label>
-                            <input type="email" class="form-control" id="email" name="email" required>
+                            <input type="email" class="form-control" id="email" name="email" 
+                                   required pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$">
+                            <div class="invalid-feedback">Please enter a valid email address.</div>
                         </div>
                         <div class="form-group mb-3">
                             <label for="full_name">Full Name</label>
-                            <input type="text" class="form-control" id="full_name" name="full_name" required>
+                            <input type="text" class="form-control" id="full_name" name="full_name" 
+                                   required minlength="2" maxlength="100" pattern="[A-Za-z ]+">
+                            <div class="invalid-feedback">Full name must contain only letters and spaces.</div>
                         </div>
                         <div class="form-group mb-3">
                             <label for="password">Password</label>
-                            <input type="password" class="form-control" id="password" name="password" required>
+                            <input type="password" class="form-control" id="password" name="password" 
+                                   required minlength="6">
+                            <div class="invalid-feedback">Password must be at least 6 characters long.</div>
                         </div>
                         <div class="form-group mb-3">
                             <label for="confirm_password">Confirm Password</label>
                             <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                            <div class="invalid-feedback">Passwords do not match.</div>
                         </div>
                         <button type="submit" class="btn btn-primary w-100">Register</button>
                     </form>
@@ -48,3 +57,56 @@
     </div>
 </div>
 {% endblock %}
+
+<script>
+function validateRegisterForm() {
+    const username = document.getElementById('username');
+    const email = document.getElementById('email');
+    const fullName = document.getElementById('full_name');
+    const password = document.getElementById('password');
+    const confirmPassword = document.getElementById('confirm_password');
+    let isValid = true;
+
+    // Username validation
+    if (!username.value.match(/^[A-Za-z0-9_]{3,50}$/)) {
+        username.classList.add('is-invalid');
+        isValid = false;
+    } else {
+        username.classList.remove('is-invalid');
+    }
+
+    // Email validation
+    if (!email.value.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)) {
+        email.classList.add('is-invalid');
+        isValid = false;
+    } else {
+        email.classList.remove('is-invalid');
+    }
+
+    // Full name validation
+    if (!fullName.value.match(/^[A-Za-z ]{2,100}$/)) {
+        fullName.classList.add('is-invalid');
+        isValid = false;
+    } else {
+        fullName.classList.remove('is-invalid');
+    }
+
+    // Password validation
+    if (password.value.length < 6) {
+        password.classList.add('is-invalid');
+        isValid = false;
+    } else {
+        password.classList.remove('is-invalid');
+    }
+
+    // Confirm password validation
+    if (password.value !== confirmPassword.value) {
+        confirmPassword.classList.add('is-invalid');
+        isValid = false;
+    } else {
+        confirmPassword.classList.remove('is-invalid');
+    }
+
+    return isValid;
+}
+</script>

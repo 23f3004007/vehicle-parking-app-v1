@@ -51,12 +51,49 @@ def manage_lots():
 @admin_required
 def create_lot():
     if request.method == 'POST':
+        # Backend validation
+        name = request.form.get('name', '').strip()
+        address = request.form.get('address', '').strip()
+        pin_code = request.form.get('pin_code', '')
+        price_per_hour = request.form.get('price_per_hour', 0)
+        max_spots = request.form.get('max_spots', 0)
+
+        # Validate inputs
+        if not (3 <= len(name) <= 100):
+            flash('Location name must be between 3 and 100 characters.', 'error')
+            return render_template('admin/lot_form.html')
+
+        if not (10 <= len(address) <= 200):
+            flash('Address must be between 10 and 200 characters.', 'error')
+            return render_template('admin/lot_form.html')
+
+        if not pin_code.isdigit() or len(pin_code) != 6:
+            flash('PIN Code must be exactly 6 digits.', 'error')
+            return render_template('admin/lot_form.html')
+
+        try:
+            price = float(price_per_hour)
+            if not (0.01 <= price <= 10000):
+                raise ValueError
+        except ValueError:
+            flash('Invalid price value. Must be between ₹0.01 and ₹10,000.', 'error')
+            return render_template('admin/lot_form.html')
+
+        try:
+            spots = int(max_spots)
+            if not (1 <= spots <= 1000):
+                raise ValueError
+        except ValueError:
+            flash('Invalid number of spots. Must be between 1 and 1000.', 'error')
+            return render_template('admin/lot_form.html')
+
+        # If validation passes, create the lot
         lot = ParkingLot(
-            prime_location_name=request.form['name'],
-            address=request.form['address'],
-            pin_code=request.form['pin_code'],
-            price_per_hour=float(request.form['price_per_hour']),
-            max_spots=int(request.form['max_spots'])
+            prime_location_name=name,
+            address=address,
+            pin_code=pin_code,
+            price_per_hour=price,
+            max_spots=spots
         )
         db.session.add(lot)
         
@@ -75,10 +112,38 @@ def create_lot():
 def edit_lot(lot_id):
     lot = ParkingLot.query.get_or_404(lot_id)
     if request.method == 'POST':
-        lot.prime_location_name = request.form['name']
-        lot.address = request.form['address']
-        lot.pin_code = request.form['pin_code']
-        lot.price_per_hour = float(request.form['price_per_hour'])
+        # Backend validation
+        name = request.form.get('name', '').strip()
+        address = request.form.get('address', '').strip()
+        pin_code = request.form.get('pin_code', '')
+        price_per_hour = request.form.get('price_per_hour', 0)
+
+        # Validate inputs
+        if not (3 <= len(name) <= 100):
+            flash('Location name must be between 3 and 100 characters.', 'error')
+            return render_template('admin/lot_form.html', lot=lot)
+
+        if not (10 <= len(address) <= 200):
+            flash('Address must be between 10 and 200 characters.', 'error')
+            return render_template('admin/lot_form.html', lot=lot)
+
+        if not pin_code.isdigit() or len(pin_code) != 6:
+            flash('PIN Code must be exactly 6 digits.', 'error')
+            return render_template('admin/lot_form.html', lot=lot)
+
+        try:
+            price = float(price_per_hour)
+            if not (0.01 <= price <= 10000):
+                raise ValueError
+        except ValueError:
+            flash('Invalid price value. Must be between ₹0.01 and ₹10,000.', 'error')
+            return render_template('admin/lot_form.html', lot=lot)
+
+        # If validation passes, update the lot
+        lot.prime_location_name = name
+        lot.address = address
+        lot.pin_code = pin_code
+        lot.price_per_hour = price
         db.session.commit()
         flash('Parking lot updated successfully!', 'success')
         return redirect(url_for('admin.manage_lots'))
