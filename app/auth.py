@@ -16,7 +16,7 @@ def login():
             user = Admin.query.filter_by(username=username).first()
             if user and user.check_password(password):
                 login_user(user)
-                return redirect(url_for('admin.dashboard'))
+                return redirect(url_for('admin.admin_dashboard'))  # Change from 'admin.dashboard' to 'admin.admin_dashboard'
         else:
             user = User.query.filter_by(username=username).first()
             if user and user.check_password(password):

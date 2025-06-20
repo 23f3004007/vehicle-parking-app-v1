@@ -17,7 +17,7 @@
                                     <h5 class="card-title">Parking Lots</h5>
                                     <i class="fas fa-parking fa-3x mb-3"></i>
                                     <p class="card-text">Manage parking locations</p>
-                                    <a href="#" class="btn btn-primary">Manage Lots</a>
+                                    <a href="{{ url_for('admin.manage_lots') }}" class="btn btn-primary">Manage Lots</a>
                                 </div>
                             </div>
                         </div>
@@ -27,7 +27,7 @@
                                     <h5 class="card-title">Users</h5>
                                     <i class="fas fa-users fa-3x mb-3"></i>
                                     <p class="card-text">Manage user accounts</p>
-                                    <a href="#" class="btn btn-success">Manage Users</a>
+                                    <a href="{{ url_for('admin.manage_users') }}" class="btn btn-success">Manage Users</a>
                                 </div>
                             </div>
                         </div>

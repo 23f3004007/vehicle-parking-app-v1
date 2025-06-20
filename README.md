@@ -2,8 +2,6 @@
 
 A Flask-based multi-user web application for managing 4-wheeler parking lots, spots, and reservations, featuring role-based access for administrators and registered users.
 
-
-
 ## Project Overview
 
 Vehicle Parking App - V1 enables efficient management of parking lots and spots for 4-wheelers. The platform supports two roles: Admin (superuser, no registration required) and User (register/login to reserve parking). Admins can manage lots and monitor spot statuses, while users can book and release spots with automated allocation.
@@ -11,27 +9,33 @@ Vehicle Parking App - V1 enables efficient management of parking lots and spots 
 ## Architecture
 
 ### Backend
+
 - Flask framework for routing and business logic
 - SQLAlchemy ORM for database management
 - SQLite database for data persistence
 - Werkzeug for security features
 
 ### Frontend
+
 - Jinja2 templating engine
 - Bootstrap for responsive design
 - Chart.js for data visualization
 - HTML and Custom CSS for styling
 
 ## Database Schema
+
 ![DB Schema diagram](https://github.com/user-attachments/assets/8695d2e5-c77b-47a4-9806-dbb88f4c90a1)
+
 ## Features
 
 ### Authentication System
+
 - Role-based access control (Admin/User)
 - Simple login/register forms (no advanced security required)
 - Session management
 
 ### Admin Features
+
 - Default admin exists on DB creation (no registration)
 - Create, edit, delete parking lots
 - Set number of spots per lot (spots auto-generated)
@@ -41,6 +45,7 @@ Vehicle Parking App - V1 enables efficient management of parking lots and spots 
 - Dashboard with summary charts (parking lot usage, occupancy, etc.)
 
 ### User Features
+
 - Register and login
 - View available parking lots
 - Book a spot (auto-allocation of first available)
@@ -48,6 +53,7 @@ Vehicle Parking App - V1 enables efficient management of parking lots and spots 
 - View personal reservation history and summary charts
 
 ### API Endpoints
+
 - `/login` – Login for admin/user
 - `/register` – User registration
 - `/admin/dashboard` – Admin dashboard
@@ -60,22 +66,27 @@ Vehicle Parking App - V1 enables efficient management of parking lots and spots 
 ## Issues faced and Solutions implemented
 
 ### 1. Programmatic Database Creation
+
 **Issue:** Manual DB creation not allowed
 **Solution:** Used Flask app startup scripts to auto-create tables if not present.
 
 ### 2. Spot Allocation Logic
+
 **Issue:** Users cannot select specific spots
 **Solution:** Implemented first-available spot allocation per lot.
 
 ### 3. Admin Deletion Constraints
+
 **Issue:** Cannot delete lots with occupied spots
 **Solution:** Added checks to prevent deletion unless all spots are empty.
 
 ### 4. Role Differentiation
+
 **Issue:** Distinguishing admin from users
 **Solution:** Role field in Users table; admin auto-created on DB init.
 
 ### 5. Timestamp Management
+
 **Issue:** Accurate parking in/out tracking
 **Solution:** Used Python datetime for parking and leaving timestamps.
 
@@ -83,19 +94,26 @@ Vehicle Parking App - V1 enables efficient management of parking lots and spots 
 
 1. Clone the repository
 2. Install dependencies:
+
 ```bash
 pip install -r requirements.txt
 ```
+
 3. Initialize the database:
+
 ```bash
 python app.py
 ```
+
 4. Access the application:
+
 - URL: http://localhost:5000
 - Default Admin Credentials:
   - Email: admin@example.com
   - Password: admin_password
+
 ## Project Structure
+
 ```bash
 quiz-master-v1/
 ├── app.py
@@ -110,5 +128,7 @@ quiz-master-v1/
 ├── api.yaml
 └──requirements.txt
 ```
-## Contributors:
+
+## Contributors
+
 ### Veditha R 23f3004007

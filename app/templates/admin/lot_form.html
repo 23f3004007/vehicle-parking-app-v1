@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h3>{{ 'Edit' if lot else 'Add' }} Parking Lot</h3>
+        </div>
+        <div class="card-body">
+            <form method="POST">
+                <div class="mb-3">
+                    <label for="name" class="form-label">Location Name</label>
+                    <input type="text" class="form-control" id="name" name="name" value="{{ lot.prime_location_name if lot else '' }}" required>
+                </div>
+                <div class="mb-3">
+                    <label for="address" class="form-label">Address</label>
+                    <textarea class="form-control" id="address" name="address" required>{{ lot.address if lot else '' }}</textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="pin_code" class="form-label">PIN Code</label>
+                    <input type="text" class="form-control" id="pin_code" name="pin_code" value="{{ lot.pin_code if lot else '' }}" required pattern="[0-9]{6}">
+                </div>
+                <div class="mb-3">
+                    <label for="price_per_hour" class="form-label">Price per Hour (₹)</label>
+                    <input type="number" step="0.01" class="form-control" id="price_per_hour" name="price_per_hour" value="{{ lot.price_per_hour if lot else '' }}" required>
+                </div>
+                {% if not lot %}
+                <div class="mb-3">
+                    <label for="max_spots" class="form-label">Maximum Parking Spots</label>
+                    <input type="number" class="form-control" id="max_spots" name="max_spots" required min="1">
+                </div>
+                {% endif %}
+                <button type="submit" class="btn btn-primary">{{ 'Update' if lot else 'Create' }} Lot</button>
+                <a href="{{ url_for('admin.manage_lots') }}" class="btn btn-secondary">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
