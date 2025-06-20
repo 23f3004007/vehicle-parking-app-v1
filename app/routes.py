@@ -176,3 +176,33 @@ def parking_history():
         Reservation.leaving_time.isnot(None)
     ).order_by(Reservation.parking_time.desc()).all()
     return render_template('user/history.html', reservations=completed_reservations)
+
+
+@admin.route('/reservations')
+@admin_required
+def view_all_reservations():
+    # Get all reservations with user and spot information
+    reservations = Reservation.query.order_by(Reservation.parking_time.desc()).all()
+    return render_template('admin/reservations.html', reservations=reservations)
+
+@admin.route('/reports')
+@admin_required
+def view_reports():
+    # Get statistics for the reports
+    total_lots = ParkingLot.query.count()
+    total_spots = ParkingSpot.query.count()
+    total_users = User.query.count()
+    active_reservations = Reservation.query.filter(Reservation.leaving_time.is_(None)).count()
+    completed_reservations = Reservation.query.filter(Reservation.leaving_time.isnot(None)).count()
+    
+    # Calculate total revenue
+    completed_bookings = Reservation.query.filter(Reservation.leaving_time.isnot(None)).all()
+    total_revenue = sum(booking.calculate_total_cost() for booking in completed_bookings)
+    
+    return render_template('admin/reports.html',
+                          total_lots=total_lots,
+                          total_spots=total_spots,
+                          total_users=total_users,
+                          active_reservations=active_reservations,
+                          completed_reservations=completed_reservations,
+                          total_revenue=total_revenue)

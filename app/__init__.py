@@ -20,31 +20,37 @@ def create_app():
     app.config['SECRET_KEY'] = 'dev'
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///parking.db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    
+
     db.init_app(app)
     login_manager.init_app(app)
     login_manager.login_view = 'auth.login'
     login_manager.login_message_category = 'info'
-    
-    with app.app_context():
-        db.create_all()
-        # Create default admin if not exists
-        from .models import Admin
-        if not Admin.query.filter_by(username='admin').first():
-            admin = Admin(username='admin')
-            admin.set_password('admin123')
-            db.session.add(admin)
-            db.session.commit()
-    
+
     from .routes import main, user, admin
     from .auth import auth
-    
+
     app.register_blueprint(main)
     app.register_blueprint(auth)
     app.register_blueprint(user)
     app.register_blueprint(admin)
-    
+
+    with app.app_context():
+        # Create all tables
+        db.create_all()
+
+        # Import and check for default admin
+        from .models import Admin
+        try:
+            if not Admin.query.filter_by(username='admin').first():
+                admin = Admin(username='admin')
+                admin.set_password('admin123')
+                db.session.add(admin)
+                db.session.commit()
+        except Exception as e:
+            print(f"[ERROR] Could not create default admin: {e}")
+
     return app
+
 
 def initialize_admin():
     from .models import Admin

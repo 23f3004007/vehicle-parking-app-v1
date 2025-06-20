@@ -10,18 +10,18 @@ def login():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
-        user_type = request.form.get('user_type')
 
-        if user_type == 'admin':
-            user = Admin.query.filter_by(username=username).first()
-            if user and user.check_password(password):
-                login_user(user)
-                return redirect(url_for('admin.admin_dashboard'))  # Change from 'admin.dashboard' to 'admin.admin_dashboard'
-        else:
-            user = User.query.filter_by(username=username).first()
-            if user and user.check_password(password):
-                login_user(user)
-                return redirect(url_for('user.user_dashboard'))
+        # First check if it's an admin login
+        admin = Admin.query.filter_by(username=username).first()
+        if admin and admin.check_password(password):
+            login_user(admin)
+            return redirect(url_for('admin.admin_dashboard'))
+
+        # If not admin, try user login
+        user = User.query.filter_by(username=username).first()
+        if user and user.check_password(password):
+            login_user(user)
+            return redirect(url_for('user.user_dashboard'))
 
         flash('Invalid username or password')
     return render_template('auth/login.html')

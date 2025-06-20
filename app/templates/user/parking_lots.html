@@ -26,7 +26,7 @@
                                         {% for spot in lot.spots %}
                                         <div class="parking-spot {% if spot.status == 'A' %}spot-available{% else %}spot-occupied{% endif %}"
                                              data-spot-id="{{ spot.id }}" 
-                                             onclick="selectSpot(this, {{ spot.id }}, '{{ spot.status }}')">
+                                             onclick="selectSpot(this, {{ spot.id }}, '{{ spot.status }}')"
                                             {{ spot.id }}
                                         </div>
                                         {% endfor %}
