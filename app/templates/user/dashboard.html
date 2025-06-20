@@ -16,7 +16,7 @@
                                 <div class="card-body text-center">
                                     <h5 class="card-title">Active Reservations</h5>
                                     <p class="display-4">{{ current_user.reservations|length }}</p>
-                                    <a href="#" class="btn btn-primary">View Reservations</a>
+                                    <a href="{{ url_for('user.view_reservations') }}" class="btn btn-primary">View Reservations</a>
                                 </div>
                             </div>
                         </div>
@@ -25,7 +25,16 @@
                                 <div class="card-body text-center">
                                     <h5 class="card-title">Find Parking</h5>
                                     <p class="card-text">Search and reserve parking spots</p>
-                                    <a href="#" class="btn btn-success">Search Spots</a>
+                                    <a href="{{ url_for('user.view_parking_lots') }}" class="btn btn-success">Search Spots</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="card h-100">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title">Parking History</h5>
+                                    <p class="card-text">View your past parking sessions</p>
+                                    <a href="{{ url_for('user.parking_history') }}" class="btn btn-info">View History</a>
                                 </div>
                             </div>
                         </div>

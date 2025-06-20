@@ -21,7 +21,7 @@ def login():
             user = User.query.filter_by(username=username).first()
             if user and user.check_password(password):
                 login_user(user)
-                return redirect(url_for('user.dashboard'))
+                return redirect(url_for('user.user_dashboard'))
 
         flash('Invalid username or password')
     return render_template('auth/login.html')

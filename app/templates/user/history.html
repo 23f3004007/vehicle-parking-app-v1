@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h3>Parking History</h3>
+            <a href="{{ url_for('user.view_parking_lots') }}" class="btn btn-primary">Find Parking</a>
+        </div>
+        <div class="card-body">
+            {% if reservations %}
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Location</th>
+                            <th>Spot</th>
+                            <th>Entry Time</th>
+                            <th>Exit Time</th>
+                            <th>Duration</th>
+                            <th>Total Cost</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for reservation in reservations %}
+                        <tr>
+                            <td>{{ reservation.spot.lot.prime_location_name }}</td>
+                            <td>{{ reservation.spot.id }}</td>
+                            <td>{{ reservation.parking_time.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>{{ reservation.leaving_time.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>{{ ((reservation.leaving_time - reservation.parking_time).total_seconds() / 3600)|round(1) }} hours</td>
+                            <td>${{ reservation.calculate_total_cost() }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <h4>No parking history found</h4>
+                <p>Your completed parking sessions will appear here</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

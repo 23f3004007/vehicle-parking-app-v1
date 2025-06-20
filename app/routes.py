@@ -4,6 +4,8 @@ from functools import wraps
 from .models import Admin
 from flask import request, jsonify
 from .models import ParkingLot, ParkingSpot, User, db
+from datetime import datetime
+from .models import Reservation
 
 main = Blueprint('main', __name__)
 user = Blueprint('user', __name__, url_prefix='/user')
@@ -23,7 +25,7 @@ def index():
     if current_user.is_authenticated:
         if isinstance(current_user, Admin):
             return redirect(url_for('admin.admin_dashboard'))  # Change from 'admin.dashboard' to 'admin.admin_dashboard'
-        return redirect(url_for('user.dashboard'))
+        return redirect(url_for('user.user_dashboard'))
     return render_template('index.html')
 
 @user.route('/dashboard')
@@ -108,3 +110,69 @@ def lot_details(lot_id):
 def view_user_details(user_id):
     user = User.query.get_or_404(user_id)
     return render_template('admin/user_details.html', user=user)
+
+
+@user.route('/parking-lots')
+@login_required
+def view_parking_lots():
+    lots = ParkingLot.query.all()
+    return render_template('user/parking_lots.html', lots=lots)
+
+@user.route('/reserve/<int:lot_id>', methods=['POST'])
+@login_required
+def reserve_spot(lot_id):
+    lot = ParkingLot.query.get_or_404(lot_id)
+    # Find first available spot using the correct status field
+    available_spot = next((spot for spot in lot.spots if spot.status == 'A'), None)
+    
+    if not available_spot:
+        flash('No spots available in this lot.', 'error')
+        return redirect(url_for('user.view_parking_lots'))
+    
+    # Create reservation and explicitly set spot_id
+    reservation = Reservation(
+        user_id=current_user.id,
+        spot_id=available_spot.id,  # Explicitly set spot_id
+        parking_time=datetime.utcnow(),
+        cost_per_hour=lot.price_per_hour
+    )
+    available_spot.status = 'O'  # Update status to Occupied
+    
+    db.session.add(reservation)
+    db.session.commit()
+    
+    flash('Spot reserved successfully!', 'success')
+    return redirect(url_for('user.view_reservations'))
+
+@user.route('/release/<int:reservation_id>', methods=['POST'])
+@login_required
+def release_spot(reservation_id):
+    reservation = Reservation.query.get_or_404(reservation_id)
+    
+    if reservation.user_id != current_user.id:
+        flash('Unauthorized action.', 'error')
+        return redirect(url_for('user.view_reservations'))
+    
+    reservation.leaving_time = datetime.utcnow()
+    reservation.spot.status = 'A'  # Update status to Available
+    db.session.commit()
+    
+    flash(f'Parking spot released. Total cost: ${reservation.calculate_total_cost()}', 'success')
+    return redirect(url_for('user.view_reservations'))
+
+@user.route('/reservations')
+@login_required
+def view_reservations():
+    return render_template('user/reservations.html', 
+                         reservations=current_user.reservations,
+                         now=datetime.utcnow)
+
+@user.route('/history')
+@login_required
+def parking_history():
+    completed_reservations = Reservation.query.filter_by(
+        user_id=current_user.id
+    ).filter(
+        Reservation.leaving_time.isnot(None)
+    ).order_by(Reservation.parking_time.desc()).all()
+    return render_template('user/history.html', reservations=completed_reservations)

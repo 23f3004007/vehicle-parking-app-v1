@@ -4,63 +4,41 @@
 <div class="container mt-4">
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
-            <h3>{{ lot.prime_location_name }}</h3>
-            <a href="{{ url_for('admin.manage_lots') }}" class="btn btn-secondary">Back to Lots</a>
+            <h3>{{ lot.prime_location_name }} - Details</h3>
+            <a href="{{ url_for('admin.manage_lots') }}" class="btn btn-primary">Back to Lots</a>
         </div>
         <div class="card-body">
             <div class="row mb-4">
                 <div class="col-md-6">
-                    <h5>Location Details</h5>
+                    <h5>Lot Information</h5>
                     <p><strong>Address:</strong> {{ lot.address }}</p>
                     <p><strong>PIN Code:</strong> {{ lot.pin_code }}</p>
-                    <p><strong>Price per Hour:</strong> ₹{{ lot.price_per_hour }}</p>
-                </div>
-                <div class="col-md-6">
-                    <h5>Spot Statistics</h5>
+                    <p><strong>Price per Hour:</strong> ${{ lot.price_per_hour }}</p>
                     <p><strong>Total Spots:</strong> {{ lot.max_spots }}</p>
                     <p><strong>Available Spots:</strong> {{ lot.available_spots }}</p>
                     <p><strong>Occupied Spots:</strong> {{ lot.occupied_spots }}</p>
                 </div>
-            </div>
-            
-            <h5>Parking Spots</h5>
-            <div class="table-responsive">
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>Spot ID</th>
-                            <th>Status</th>
-                            <th>Current User</th>
-                            <th>Parking Time</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+                <div class="col-md-6">
+                    <h5>Parking Layout</h5>
+                    <div class="parking-layout p-3 border rounded">
                         {% for spot in lot.spots %}
-                        <tr>
-                            <td>{{ spot.id }}</td>
-                            <td>
-                                <span class="badge {% if spot.status == 'A' %}bg-success{% else %}bg-danger{% endif %}">
-                                    {{ 'Available' if spot.status == 'A' else 'Occupied' }}
-                                </span>
-                            </td>
-                            <td>
+                        <div class="parking-spot {% if spot.status == 'A' %}spot-available{% else %}spot-occupied{% endif %}">
+                            {{ spot.id }}
+                            {% if spot.status == 'O' %}
+                            <div class="spot-info small">
                                 {% if spot.reservation %}
-                                    {{ spot.reservation.user.username }}
-                                {% else %}
-                                    -
+                                <span>Since: {{ spot.reservation.parking_time.strftime('%H:%M') }}</span>
                                 {% endif %}
-                            </td>
-                            <td>
-                                {% if spot.reservation %}
-                                    {{ spot.reservation.parking_time.strftime('%Y-%m-%d %H:%M') }}
-                                {% else %}
-                                    -
-                                {% endif %}
-                            </td>
-                        </tr>
+                            </div>
+                            {% endif %}
+                        </div>
                         {% endfor %}
-                    </tbody>
-                </table>
+                    </div>
+                    <div class="mt-3">
+                        <span class="badge bg-success">Available</span>
+                        <span class="badge bg-danger">Occupied</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

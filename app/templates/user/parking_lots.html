@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h3>Available Parking Lots</h3>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                {% for lot in lots %}
+                <div class="col-12 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <h5 class="card-title">{{ lot.prime_location_name }}</h5>
+                                    <p class="card-text">
+                                        <strong>Address:</strong> {{ lot.address }}<br>
+                                        <strong>Price:</strong> ${{ lot.price_per_hour }}/hour<br>
+                                        <strong>Available Spots:</strong> {{ lot.available_spots }}/{{ lot.max_spots }}
+                                    </p>
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="parking-layout">
+                                        {% for spot in lot.spots %}
+                                        <div class="parking-spot {% if spot.status == 'A' %}spot-available{% else %}spot-occupied{% endif %}"
+                                             data-spot-id="{{ spot.id }}" 
+                                             onclick="selectSpot(this, {{ spot.id }}, '{{ spot.status }}')">
+                                            {{ spot.id }}
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                    <form id="reserveForm-{{ lot.id }}" action="{{ url_for('user.reserve_spot', lot_id=lot.id) }}" method="POST" class="mt-3">
+                                        <input type="hidden" name="spot_id" id="spotId-{{ lot.id }}">
+                                        <button type="submit" class="btn btn-primary" disabled id="reserveBtn-{{ lot.id }}">
+                                            Reserve Selected Spot
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function selectSpot(element, spotId, status) {
+    if (status !== 'A') return;
+    
+    // Remove previous selection
+    document.querySelectorAll('.spot-selected').forEach(spot => {
+        spot.classList.remove('spot-selected');
+        spot.classList.add('spot-available');
+    });
+    
+    // Add selection to clicked spot
+    element.classList.remove('spot-available');
+    element.classList.add('spot-selected');
+    
+    // Enable reserve button and set spot ID
+    const lotId = element.closest('.card').querySelector('form').id.split('-')[1];
+    document.getElementById(`spotId-${lotId}`).value = spotId;
+    document.getElementById(`reserveBtn-${lotId}`).disabled = false;
+}
+</script>
+{% endblock %}

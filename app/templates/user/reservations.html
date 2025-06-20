@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h3>Your Active Reservations</h3>
+            <a href="{{ url_for('user.view_parking_lots') }}" class="btn btn-primary">Find Parking</a>
+        </div>
+        <div class="card-body">
+            {% if reservations %}
+            <div class="row">
+                {% for reservation in reservations %}
+                {% if not reservation.leaving_time %}
+                <div class="col-md-6 mb-3">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ reservation.spot.lot.prime_location_name }}</h5>
+                            <div class="reservation-details">
+                                <p><strong>Spot Number:</strong> {{ reservation.spot.id }}</p>
+                                <p><strong>Start Time:</strong> {{ reservation.parking_time.strftime('%Y-%m-%d %H:%M') }}</p>
+                                <p><strong>Duration:</strong> {{ ((now() - reservation.parking_time).total_seconds() / 3600)|round(1) }} hours</p>
+                                <p><strong>Current Cost:</strong> ${{ (((now() - reservation.parking_time).total_seconds() / 3600) * reservation.cost_per_hour)|round(2) }}</p>
+                            </div>
+                            <form action="{{ url_for('user.release_spot', reservation_id=reservation.id) }}" method="POST">
+                                <button type="submit" class="btn btn-danger w-100">Release Spot</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <h4>You have no active reservations</h4>
+                <a href="{{ url_for('user.view_parking_lots') }}" class="btn btn-primary mt-3">Find Parking</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
