@@ -17,14 +17,21 @@ def load_user(user_id):
 
 def create_app():
     app = Flask(__name__)
-    app.config['SECRET_KEY'] = 'dev'
+    app.config['SECRET_KEY'] = 'dev'  # Change this to a secure random key in production
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///parking.db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
+    
+    # Enhanced security settings
+    app.config['SESSION_COOKIE_SECURE'] = True  # Only send cookies over HTTPS
+    app.config['SESSION_COOKIE_HTTPONLY'] = True  # Prevent JavaScript access to session cookie
+    app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=60)  # Session timeout
+    app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'  # CSRF protection
+    
     db.init_app(app)
     login_manager.init_app(app)
     login_manager.login_view = 'auth.login'
     login_manager.login_message_category = 'info'
+    login_manager.session_protection = 'strong'  # Enable strong session protection
 
     from .routes import main, user, admin
     from .auth import auth
