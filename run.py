@@ -14,7 +14,7 @@ def install_requirements():
         sys.exit(1)
 
 if __name__ == '__main__':
-    install_requirements()  # Install required packages
-    from app import create_app  # Import after installing requirements
+    install_requirements()
+    from app import create_app
     app = create_app()
     app.run(debug=True)

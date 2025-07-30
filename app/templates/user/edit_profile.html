@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="text-center">Edit Profile</h3>
+                </div>
+                <div class="card-body">
+                    {% with messages = get_flashed_messages() %}
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-info">{{ message }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                    <form method="POST" id="editProfileForm" onsubmit="return validateEditProfileForm()">
+                        <div class="form-group mb-3">
+                            <label for="username">Username</label>
+                            <input type="text" class="form-control" id="username" name="username"
+                                   value="{{ current_user.username }}" readonly>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="email">Email</label>
+                            <input type="email" class="form-control" id="email" name="email"
+                                   value="{{ current_user.email }}" required>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="full_name">Full Name</label>
+                            <input type="text" class="form-control" id="full_name" name="full_name"
+                                   value="{{ current_user.full_name }}" required minlength="2" maxlength="100" pattern="[A-Za-z ]+">
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="password">New Password</label>
+                            <input type="password" class="form-control" id="password" name="password"
+                                   minlength="6" placeholder="Leave blank to keep current password">
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="confirm_password">Confirm New Password</label>
+                            <input type="password" class="form-control" id="confirm_password" name="confirm_password"
+                                   minlength="6" placeholder="Leave blank to keep current password">
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Update Profile</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+function validateEditProfileForm() {
+    var form = document.getElementById('editProfileForm');
+    var password = form.password.value;
+    var confirm = form.confirm_password.value;
+    if (password || confirm) {
+        if (password.length < 6) {
+            alert('Password must be at least 6 characters.');
+            return false;
+        }
+        if (password !== confirm) {
+            alert('Passwords do not match.');
+            return false;
+        }
+    }
+    return true;
+}
+</script>
+{% endblock %}

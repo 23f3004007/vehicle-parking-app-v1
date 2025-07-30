@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_user, logout_user, login_required
-from app.models import Admin, User
+from app.models import User
 from app import db
 
 auth = Blueprint('auth', __name__)
@@ -10,18 +10,14 @@ def login():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
-
-        # First check if it's an admin login
-        admin = Admin.query.filter_by(username=username).first()
-        if admin and admin.check_password(password):
-            login_user(admin)
-            return redirect(url_for('admin.admin_dashboard'))
-
-        # If not admin, try user login
+        
         user = User.query.filter_by(username=username).first()
         if user and user.check_password(password):
             login_user(user)
-            return redirect(url_for('user.user_dashboard'))
+            if user.is_admin:
+                return redirect(url_for('admin.admin_dashboard'))
+            else:
+                return redirect(url_for('user.user_dashboard'))
 
         flash('Invalid username or password')
     return render_template('auth/login.html')
@@ -60,4 +56,4 @@ def register():
 @login_required
 def logout():
     logout_user()
-    return redirect(url_for('auth.login'))
+    return redirect(url_for('main.index'))

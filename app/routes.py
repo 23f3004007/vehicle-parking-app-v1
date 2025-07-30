@@ -1,38 +1,48 @@
 from flask import Blueprint, render_template, redirect, url_for, flash
 from flask_login import login_required, current_user
 from functools import wraps
-from .models import Admin
 from flask import request, jsonify
 from .models import ParkingLot, ParkingSpot, User, db
 from datetime import datetime
 from .models import Reservation
+from .decorators import admin_required, user_required
 
 main = Blueprint('main', __name__)
 user = Blueprint('user', __name__, url_prefix='/user')
 admin = Blueprint('admin', __name__, url_prefix='/admin')
 
-def admin_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if not current_user.is_authenticated or not isinstance(current_user, Admin):
-            flash('You need to be logged in as an admin to view this page.')
-            return redirect(url_for('auth.login'))
-        return f(*args, **kwargs)
-    return decorated_function
+# # Admin-only decorator
+# def admin_required(f):
+#     @wraps(f)
+#     def decorated_function(*args, **kwargs):
+#         if not current_user.is_authenticated or not isinstance(current_user, Admin):
+#             flash('You need to be logged in as an admin to view this page.')
+#             return redirect(url_for('auth.login'))
+#         return f(*args, **kwargs)
+#     return decorated_function
+
+# # User-only decorator
+# def user_required(f):
+#     @wraps(f)
+#     def decorated_function(*args, **kwargs):
+#         if not current_user.is_authenticated or not isinstance(current_user, User):
+#             flash('You need to be logged in as a user to view this page.')
+#             return redirect(url_for('auth.login'))
+#         return f(*args, **kwargs)
+#     return decorated_function
 
 @main.route('/')
 def index():
     if current_user.is_authenticated:
-        if isinstance(current_user, Admin):
+        if isinstance(current_user, is_admin = True):
             return redirect(url_for('admin.admin_dashboard'))  # Change from 'admin.dashboard' to 'admin.admin_dashboard'
         return redirect(url_for('user.user_dashboard'))
     return render_template('index.html')
 
 @user.route('/dashboard')
 @login_required
+@user_required
 def user_dashboard():
-    if isinstance(current_user, Admin):
-        return redirect(url_for('admin.dashboard'))
     return render_template('user/dashboard.html')
 
 @admin.route('/dashboard')
@@ -153,6 +163,10 @@ def edit_lot(lot_id):
 @admin_required
 def delete_lot(lot_id):
     lot = ParkingLot.query.get_or_404(lot_id)
+    occupied_spots = any(spot.status == 'O' for spot in lot.spots)
+    if occupied_spots:
+        flash('Cannot delete lot with occupied spots.', 'error')
+        return redirect(url_for('admin.manage_lots'))
     db.session.delete(lot)
     db.session.commit()
     flash('Parking lot deleted successfully!', 'success')
@@ -179,12 +193,14 @@ def view_user_details(user_id):
 
 @user.route('/parking-lots')
 @login_required
+@user_required
 def view_parking_lots():
     lots = ParkingLot.query.all()
     return render_template('user/parking_lots.html', lots=lots)
 
 @user.route('/reserve/<int:lot_id>', methods=['POST'])
 @login_required
+@user_required
 def reserve_spot(lot_id):
     lot = ParkingLot.query.get_or_404(lot_id)
     # Find first available spot using the correct status field
@@ -211,6 +227,7 @@ def reserve_spot(lot_id):
 
 @user.route('/release/<int:reservation_id>', methods=['POST'])
 @login_required
+@user_required
 def release_spot(reservation_id):
     reservation = Reservation.query.get_or_404(reservation_id)
     
@@ -227,6 +244,7 @@ def release_spot(reservation_id):
 
 @user.route('/reservations')
 @login_required
+@user_required
 def view_reservations():
     return render_template('user/reservations.html', 
                          reservations=current_user.reservations,
@@ -234,6 +252,7 @@ def view_reservations():
 
 @user.route('/history')
 @login_required
+@user_required
 def parking_history():
     completed_reservations = Reservation.query.filter_by(
         user_id=current_user.id
@@ -246,9 +265,10 @@ def parking_history():
 @admin.route('/reservations')
 @admin_required
 def view_all_reservations():
-    # Get all reservations with user and spot information
+    from datetime import datetime
     reservations = Reservation.query.order_by(Reservation.parking_time.desc()).all()
-    return render_template('admin/reservations.html', reservations=reservations)
+    now = datetime.utcnow()
+    return render_template('admin/reservations.html', reservations=reservations, now=now)
 
 @admin.route('/reports')
 @admin_required
@@ -355,6 +375,7 @@ def get_reservations():
 # User-specific API endpoints
 @user.route('/api/my-history', methods=['GET'])
 @login_required
+@user_required
 def get_user_history():
     reservations = Reservation.query.filter_by(
         user_id=current_user.id
@@ -371,3 +392,26 @@ def get_user_history():
             'cost': res.calculate_total_cost()
         } for res in reservations
     ])
+
+@user.route('/edit-profile', methods=['GET', 'POST'])
+@login_required
+@user_required
+def edit_profile():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        full_name=request.form.get('full_name')
+        password = request.form.get('password')
+        confirm_password = request.form.get('confirm_password')
+        
+        if password and password != confirm_password:
+            flash('Passwords do not match.', 'error')
+            return redirect(url_for('user.edit_profile'))
+        
+        current_user.email = email
+        current_user.full_name = full_name
+        if password:
+            current_user.set_password(password)
+        db.session.commit()
+        flash('Profile updated successfully!')
+        return redirect(url_for('user.edit_profile'))
+    return render_template('user/edit_profile.html')

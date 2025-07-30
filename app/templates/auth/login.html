@@ -43,24 +43,11 @@
 
 <script>
 function validateLoginForm() {
-    const username = document.getElementById('username');
-    const password = document.getElementById('password');
-    let isValid = true;
-
-    if (!username.value.match(/^[A-Za-z0-9_]{3,50}$/)) {
-        username.classList.add('is-invalid');
-        isValid = false;
-    } else {
-        username.classList.remove('is-invalid');
+    var form = document.getElementById('loginForm');
+    if (!form.checkValidity()) {
+        form.classList.add('was-validated');
+        return false;
     }
-
-    if (password.value.length < 6) {
-        password.classList.add('is-invalid');
-        isValid = false;
-    } else {
-        password.classList.remove('is-invalid');
-    }
-
-    return isValid;
+    return true;
 }
 </script>

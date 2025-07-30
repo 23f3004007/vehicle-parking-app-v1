@@ -2,15 +2,6 @@
 
 {% block content %}
 <div class="container mt-4">
-    <div class="card mb-4">
-        <div class="card-header">
-            <h3>Parking History Chart</h3>
-        </div>
-        <div class="card-body">
-            <canvas id="parkingHistoryChart"></canvas>
-        </div>
-    </div>
-
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h3>Parking History</h3>
@@ -38,11 +29,33 @@
                             <td>{{ reservation.parking_time.strftime('%Y-%m-%d %H:%M') }}</td>
                             <td>{{ reservation.leaving_time.strftime('%Y-%m-%d %H:%M') }}</td>
                             <td>{{ ((reservation.leaving_time - reservation.parking_time).total_seconds() / 3600)|round(1) }} hours</td>
-                            <td>${{ reservation.calculate_total_cost() }}</td>
+                            <td>₹{{ reservation.calculate_total_cost() }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
+            </div>
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Parking Duration Chart</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="parkingDurationChart" width="400" height="250"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Parking Cost Chart</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="parkingCostChart" width="400" height="250"></canvas>
+                        </div>
+                    </div>
+                </div>
             </div>
             {% else %}
             <div class="text-center py-5">
@@ -56,37 +69,59 @@
 
 <!-- Add Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     fetch('{{ url_for("user.get_user_history") }}')
         .then(response => response.json())
         .then(data => {
-            const ctx = document.getElementById('parkingHistoryChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'bar',
+            const labels = data.map(item => new Date(item.parking_time).toLocaleDateString());
+            // Duration Chart
+            const durationCtx = document.getElementById('parkingDurationChart').getContext('2d');
+            new Chart(durationCtx, {
+                type: 'line',
                 data: {
-                    labels: data.map(item => new Date(item.parking_time).toLocaleDateString()),
+                    labels: labels,
                     datasets: [{
                         label: 'Parking Duration (hours)',
                         data: data.map(item => item.duration),
-                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
                         borderColor: 'rgba(54, 162, 235, 1)',
-                        borderWidth: 1
-                    }, {
-                        label: 'Cost ($)',
-                        data: data.map(item => item.cost),
-                        backgroundColor: 'rgba(255, 99, 132, 0.5)',
-                        borderColor: 'rgba(255, 99, 132, 1)',
-                        borderWidth: 1
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.1
                     }]
                 },
                 options: {
-                    responsive: true,
+                    responsive: false,
+                    maintainAspectRatio: false,
+                    animation: false,
                     scales: {
-                        y: {
-                            beginAtZero: true
-                        }
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+            // Cost Chart
+            const costCtx = document.getElementById('parkingCostChart').getContext('2d');
+            new Chart(costCtx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Parking Cost (₹)',
+                        data: data.map(item => item.cost),
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: false,
+                    maintainAspectRatio: false,
+                    animation: false,
+                    scales: {
+                        y: { beginAtZero: true }
                     }
                 }
             });

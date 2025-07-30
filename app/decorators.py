@@ -6,14 +6,14 @@ def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if not current_user.is_authenticated or not hasattr(current_user, 'is_admin') or not current_user.is_admin:
-            abort(403)  # Return Forbidden instead of redirecting
+            abort(403)
         return f(*args, **kwargs)
     return decorated_function
 
 def user_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        if not current_user.is_authenticated or hasattr(current_user, 'is_admin'):
+        if not current_user.is_authenticated or getattr(current_user, 'is_admin', False):
             abort(403)
         return f(*args, **kwargs)
     return decorated_function

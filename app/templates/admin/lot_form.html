@@ -53,54 +53,11 @@
 
 <script>
 function validateLotForm() {
-    const name = document.getElementById('name');
-    const address = document.getElementById('address');
-    const pinCode = document.getElementById('pin_code');
-    const pricePerHour = document.getElementById('price_per_hour');
-    const maxSpots = document.getElementById('max_spots');
-    let isValid = true;
-
-    // Name validation
-    if (name.value.length < 3 || name.value.length > 100) {
-        name.classList.add('is-invalid');
-        isValid = false;
-    } else {
-        name.classList.remove('is-invalid');
+    var form = document.getElementById('lotForm');
+    if (!form.checkValidity()) {
+        form.classList.add('was-validated');
+        return false;
     }
-
-    // Address validation
-    if (address.value.length < 10 || address.value.length > 200) {
-        address.classList.add('is-invalid');
-        isValid = false;
-    } else {
-        address.classList.remove('is-invalid');
-    }
-
-    // PIN Code validation
-    if (!pinCode.value.match(/^[0-9]{6}$/)) {
-        pinCode.classList.add('is-invalid');
-        isValid = false;
-    } else {
-        pinCode.classList.remove('is-invalid');
-    }
-
-    // Price validation
-    const price = parseFloat(pricePerHour.value);
-    if (isNaN(price) || price < 0.01 || price > 10000) {
-        pricePerHour.classList.add('is-invalid');
-        isValid = false;
-    } else {
-        pricePerHour.classList.remove('is-invalid');
-    }
-
-    // Max spots validation (only for new lots)
-    if (maxSpots && (maxSpots.value < 1 || maxSpots.value > 1000)) {
-        maxSpots.classList.add('is-invalid');
-        isValid = false;
-    } else if (maxSpots) {
-        maxSpots.classList.remove('is-invalid');
-    }
-
-    return isValid;
+    return true;
 }
 </script>

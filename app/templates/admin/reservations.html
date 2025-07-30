@@ -40,7 +40,7 @@
                                 {% if reservation.leaving_time %}
                                     {{ ((reservation.leaving_time - reservation.parking_time).total_seconds() / 3600)|round(1) }} hours
                                 {% else %}
-                                    {{ ((now() - reservation.parking_time).total_seconds() / 3600)|round(1) }} hours
+                                    {{ ((now - reservation.parking_time).total_seconds() / 3600)|round(1) }} hours
                                 {% endif %}
                             </td>
                             <td>
