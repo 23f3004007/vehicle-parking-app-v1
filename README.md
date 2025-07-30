@@ -5,7 +5,15 @@ A Flask-based multi-user web application for managing 4-wheeler parking lots, sp
 ## Project Overview
 
 Vehicle Parking App - V1 enables efficient management of parking lots and spots for 4-wheelers. The platform supports two roles: Admin (superuser, no registration required) and User (register/login to reserve parking). Admins can manage lots and monitor spot statuses, while users can book and release spots with automated allocation.
-
+<img width="1920" height="1008" alt="image" src="https://github.com/user-attachments/assets/f4427d4d-4378-4565-a7d5-b7e2ebc88dd7" />
+<img width="1920" height="1008" alt="image" src="https://github.com/user-attachments/assets/b6133897-58ab-4aa6-9564-24a84830e7cd" />
+<img width="1920" height="1008" alt="image" src="https://github.com/user-attachments/assets/a8feb8aa-e910-46cc-acbe-19ba8073a12f" />
+<img width="1920" height="1008" alt="image" src="https://github.com/user-attachments/assets/555462b7-0c15-47e8-8897-e658702e66b9" />
+<img width="1920" height="1008" alt="image" src="https://github.com/user-attachments/assets/f2b372be-ee0c-4a6a-abe3-b50a3959a9d5" />
+<img width="1920" height="1008" alt="image" src="https://github.com/user-attachments/assets/9a0d4524-34bf-40ac-b87b-66a427286588" />
+<img width="1920" height="1008" alt="image" src="https://github.com/user-attachments/assets/98605959-c6e6-4190-a47a-1036bc764f40" />
+<img width="1920" height="1008" alt="image" src="https://github.com/user-attachments/assets/b167fb85-54a4-4ad3-be90-e0b09a2103d9" />
+<img width="1920" height="1008" alt="image" src="https://github.com/user-attachments/assets/2a3dca24-e1e4-4270-bb82-7d11778369e0" />
 
 ## Architecture
 
@@ -52,16 +60,6 @@ Vehicle Parking App - V1 enables efficient management of parking lots and spots 
 - Release/vacate spot (updates status)
 - View personal reservation history and summary charts
 
-### API Endpoints
-
-- `/login` – Login for admin/user
-- `/register` – User registration
-- `/admin/dashboard` – Admin dashboard
-- `/admin/lots` – CRUD operations for parking lots
-- `/admin/users` – View all users
-- `/user/dashboard` – User dashboard
-- `/user/reserve` – Reserve a parking spot
-- `/user/release` – Release a parking spot
 
 ## Issues faced and Solutions implemented
 
