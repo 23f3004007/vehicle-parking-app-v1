@@ -17,7 +17,7 @@
                             <h5 class="card-title">{{ lot.prime_location_name }}</h5>
                             <p class="card-text">
                                 <strong>Address:</strong> {{ lot.address }}<br>
-                                <strong>Price:</strong> ${{ lot.price_per_hour }}/hour<br>
+                                <strong>Price:</strong> ₹{{ lot.price_per_hour }}/hour<br>
                                 <strong>Available Spots:</strong> {{ lot.available_spots }}/{{ lot.max_spots }}
                             </p>
                             {% if auto_spot %}

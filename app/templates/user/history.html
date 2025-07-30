@@ -67,7 +67,7 @@
     </div>
 </div>
 
-<!-- Add Chart.js -->
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -75,7 +75,6 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(data => {
             const labels = data.map(item => new Date(item.parking_time).toLocaleDateString());
-            // Duration Chart
             const durationCtx = document.getElementById('parkingDurationChart').getContext('2d');
             new Chart(durationCtx, {
                 type: 'line',
@@ -100,7 +99,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }
             });
-            // Cost Chart
             const costCtx = document.getElementById('parkingCostChart').getContext('2d');
             new Chart(costCtx, {
                 type: 'line',

@@ -20,7 +20,7 @@
                                 <p><strong>Spot Number:</strong> {{ reservation.spot.id }}</p>
                                 <p><strong>Start Time:</strong> {{ reservation.parking_time.strftime('%Y-%m-%d %H:%M') }}</p>
                                 <p><strong>Duration:</strong> {{ ((now() - reservation.parking_time).total_seconds() / 3600)|round(1) }} hours</p>
-                                <p><strong>Current Cost:</strong> ${{ (((now() - reservation.parking_time).total_seconds() / 3600) * reservation.cost_per_hour)|round(2) }}</p>
+                                <p><strong>Current Cost:</strong> ₹{{ (((now() - reservation.parking_time).total_seconds() / 3600) * reservation.cost_per_hour)|round(2) }}</p>
                             </div>
                             <form action="{{ url_for('user.release_spot', reservation_id=reservation.id) }}" method="POST">
                                 <button type="submit" class="btn btn-danger w-100">Release Spot</button>

@@ -45,7 +45,7 @@
                             </td>
                             <td>
                                 {% if reservation.leaving_time %}
-                                    ${{ reservation.calculate_total_cost() }}
+                                    ₹{{ reservation.calculate_total_cost() }}
                                 {% else %}
                                     In Progress
                                 {% endif %}

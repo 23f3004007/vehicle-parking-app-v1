@@ -6,36 +6,17 @@ from .models import ParkingLot, ParkingSpot, User, db
 from datetime import datetime
 from .models import Reservation
 from .decorators import admin_required, user_required
-
+from flask import jsonify
 main = Blueprint('main', __name__)
 user = Blueprint('user', __name__, url_prefix='/user')
 admin = Blueprint('admin', __name__, url_prefix='/admin')
 
-# # Admin-only decorator
-# def admin_required(f):
-#     @wraps(f)
-#     def decorated_function(*args, **kwargs):
-#         if not current_user.is_authenticated or not isinstance(current_user, Admin):
-#             flash('You need to be logged in as an admin to view this page.')
-#             return redirect(url_for('auth.login'))
-#         return f(*args, **kwargs)
-#     return decorated_function
-
-# # User-only decorator
-# def user_required(f):
-#     @wraps(f)
-#     def decorated_function(*args, **kwargs):
-#         if not current_user.is_authenticated or not isinstance(current_user, User):
-#             flash('You need to be logged in as a user to view this page.')
-#             return redirect(url_for('auth.login'))
-#         return f(*args, **kwargs)
-#     return decorated_function
 
 @main.route('/')
 def index():
     if current_user.is_authenticated:
         if isinstance(current_user, is_admin = True):
-            return redirect(url_for('admin.admin_dashboard'))  # Change from 'admin.dashboard' to 'admin.admin_dashboard'
+            return redirect(url_for('admin.admin_dashboard'))
         return redirect(url_for('user.user_dashboard'))
     return render_template('index.html')
 
@@ -61,14 +42,12 @@ def manage_lots():
 @admin_required
 def create_lot():
     if request.method == 'POST':
-        # Backend validation
         name = request.form.get('name', '').strip()
         address = request.form.get('address', '').strip()
         pin_code = request.form.get('pin_code', '')
         price_per_hour = request.form.get('price_per_hour', 0)
         max_spots = request.form.get('max_spots', 0)
 
-        # Validate inputs
         if not (3 <= len(name) <= 100):
             flash('Location name must be between 3 and 100 characters.', 'error')
             return render_template('admin/lot_form.html')
@@ -97,7 +76,6 @@ def create_lot():
             flash('Invalid number of spots. Must be between 1 and 1000.', 'error')
             return render_template('admin/lot_form.html')
 
-        # If validation passes, create the lot
         lot = ParkingLot(
             prime_location_name=name,
             address=address,
@@ -107,7 +85,6 @@ def create_lot():
         )
         db.session.add(lot)
         
-        # Create parking spots based on max_spots
         for _ in range(lot.max_spots):
             spot = ParkingSpot(lot=lot)
             db.session.add(spot)
@@ -122,13 +99,11 @@ def create_lot():
 def edit_lot(lot_id):
     lot = ParkingLot.query.get_or_404(lot_id)
     if request.method == 'POST':
-        # Backend validation
         name = request.form.get('name', '').strip()
         address = request.form.get('address', '').strip()
         pin_code = request.form.get('pin_code', '')
         price_per_hour = request.form.get('price_per_hour', 0)
 
-        # Validate inputs
         if not (3 <= len(name) <= 100):
             flash('Location name must be between 3 and 100 characters.', 'error')
             return render_template('admin/lot_form.html', lot=lot)
@@ -149,7 +124,6 @@ def edit_lot(lot_id):
             flash('Invalid price value. Must be between ₹0.01 and ₹10,000.', 'error')
             return render_template('admin/lot_form.html', lot=lot)
 
-        # If validation passes, update the lot
         lot.prime_location_name = name
         lot.address = address
         lot.pin_code = pin_code
@@ -203,21 +177,19 @@ def view_parking_lots():
 @user_required
 def reserve_spot(lot_id):
     lot = ParkingLot.query.get_or_404(lot_id)
-    # Find first available spot using the correct status field
     available_spot = next((spot for spot in lot.spots if spot.status == 'A'), None)
     
     if not available_spot:
         flash('No spots available in this lot.', 'error')
         return redirect(url_for('user.view_parking_lots'))
     
-    # Create reservation and explicitly set spot_id
     reservation = Reservation(
         user_id=current_user.id,
-        spot_id=available_spot.id,  # Explicitly set spot_id
+        spot_id=available_spot.id,  
         parking_time=datetime.utcnow(),
         cost_per_hour=lot.price_per_hour
     )
-    available_spot.status = 'O'  # Update status to Occupied
+    available_spot.status = 'O' 
     
     db.session.add(reservation)
     db.session.commit()
@@ -236,7 +208,7 @@ def release_spot(reservation_id):
         return redirect(url_for('user.view_reservations'))
     
     reservation.leaving_time = datetime.utcnow()
-    reservation.spot.status = 'A'  # Update status to Available
+    reservation.spot.status = 'A' 
     db.session.commit()
     
     flash(f'Parking spot released. Total cost: ${reservation.calculate_total_cost()}', 'success')
@@ -246,9 +218,7 @@ def release_spot(reservation_id):
 @login_required
 @user_required
 def view_reservations():
-    return render_template('user/reservations.html', 
-                         reservations=current_user.reservations,
-                         now=datetime.utcnow)
+    return render_template('user/reservations.html',reservations=current_user.reservations, now=datetime.utcnow)
 
 @user.route('/history')
 @login_required
@@ -273,24 +243,23 @@ def view_all_reservations():
 @admin.route('/reports')
 @admin_required
 def view_reports():
-    # Get statistics for the reports
     total_lots = ParkingLot.query.count()
     total_spots = ParkingSpot.query.count()
     total_users = User.query.count()
     active_reservations = Reservation.query.filter(Reservation.leaving_time.is_(None)).count()
     completed_reservations = Reservation.query.filter(Reservation.leaving_time.isnot(None)).count()
     
-    # Calculate total revenue
+
     completed_bookings = Reservation.query.filter(Reservation.leaving_time.isnot(None)).all()
     total_revenue = sum(booking.calculate_total_cost() for booking in completed_bookings)
     
     return render_template('admin/reports.html',
-                          total_lots=total_lots,
-                          total_spots=total_spots,
-                          total_users=total_users,
-                          active_reservations=active_reservations,
-                          completed_reservations=completed_reservations,
-                          total_revenue=total_revenue)
+                           total_lots=total_lots,
+                           total_spots=total_spots,
+                           total_users=total_users,
+                           active_reservations=active_reservations,
+                           completed_reservations=completed_reservations,
+                           total_revenue=total_revenue)
 
 
 @admin.route('/search')
@@ -318,14 +287,11 @@ def search():
             ParkingLot.address.ilike(f'%{query}%')
         ).all()
     
-    return render_template('admin/search_results.html', 
+    return render_template('admin/search_results.html',
                            results=results, 
                            search_type=search_type,
                            query=query)
 
-
-# Add these imports at the top
-from flask import jsonify
 
 # API endpoints for parking lots
 @admin.route('/api/lots', methods=['GET'])
@@ -343,7 +309,7 @@ def get_lots():
         } for lot in lots
     ])
 
-# API endpoint for spots in a lot
+# API endpoint for spot
 @admin.route('/api/lots/<int:lot_id>/spots', methods=['GET'])
 @admin_required
 def get_lot_spots(lot_id):
