@@ -7,7 +7,7 @@ login_manager = LoginManager()
 
 @login_manager.user_loader
 def load_user(user_id):
-    from .models import User
+    from app.models import User
     return User.query.get(int(user_id))
 
 def create_app():
@@ -35,7 +35,7 @@ def create_app():
 
     with app.app_context():
         db.create_all()
-        from .models import User
+        from app.models import User
         try:
             if not User.query.filter_by(username='admin').first():
                 admin = User(username='admin')
