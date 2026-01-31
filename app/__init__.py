@@ -13,7 +13,7 @@ def load_user(user_id):
 def create_app():
     app = Flask(__name__)
     app.config['SECRET_KEY'] = 'veditharv'  
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///parking.db'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///parking.sqlite3'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SESSION_COOKIE_SECURE'] = True 
     app.config['SESSION_COOKIE_HTTPONLY'] = True 
